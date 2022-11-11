@@ -5,16 +5,17 @@
 class Tore
 {
 protected:
-    Vector c;
+    Vector c, up;
     double r, R;
 public:
     Tore();
     explicit Tore(double, double);
     explicit Tore(Vector&, double, double);
 
-    ~Tore() {};
+    ~Tore() {}
 
     Vector Center() const;
-    double Radius1() const; // r
-    double Radius2() const; // R
+    Vector Normal() const;
+    double radius() const; // "Width" radius
+    double Radius() const; // "Gap" radius
 };

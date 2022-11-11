@@ -125,11 +125,11 @@ public:
   Box GetBox() const;
 
   void Scale(double);
-  void Translate(Vector&);
+  void Translate(const Vector&);
   void RotateX(double);
   void RotateY(double);
   void RotateZ(double);
-  void Merge(Mesh&);
+  void Merge(const Mesh&);
 
   void SphereWarp(Sphere&);
 

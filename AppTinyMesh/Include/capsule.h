@@ -5,7 +5,7 @@
 class Capsule
 {
 protected:
-    Vector c;
+    Vector c, up;
     double r, h;
 public:
     Capsule();
@@ -15,6 +15,7 @@ public:
     ~Capsule() {}
 
     Vector Center() const;
+    Vector Normal() const;
     double Radius() const;
     double Height() const;
 };

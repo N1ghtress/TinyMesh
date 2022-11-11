@@ -3,13 +3,15 @@
 Tore::Tore()
 {
     c = Vector(0.0, 0.0, 0.0);
-    r = 1.0;
-    R = 0.5;
+    up = Vector(0.0, 0.0, 1.0);
+    r = 0.5;
+    R = 1.0;
 }
 
 Tore::Tore(double p_r, double p_R)
 {
     c = Vector(0.0, 0.0, 0.0);
+    up = Vector(0.0, 0.0, 1.0);
     r = p_r;
     R = p_R;
 }
@@ -17,6 +19,7 @@ Tore::Tore(double p_r, double p_R)
 Tore::Tore(Vector& p_c, double p_r, double p_R)
 {
     c = p_c;
+    up = Vector(0.0, 0.0, 1.0);
     r = p_r;
     R = p_R;
 }
@@ -26,12 +29,17 @@ Vector Tore::Center() const
     return c;
 }
 
-double Tore::Radius1() const
+Vector Tore::Normal() const
+{
+    return up;
+}
+
+double Tore::radius() const
 {
     return r;
 }
 
-double Tore::Radius2() const
+double Tore::Radius() const
 {
     return R;
 }

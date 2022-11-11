@@ -37,6 +37,7 @@ void MainWindow::CreateActions()
     connect(uiw->sphereMesh, SIGNAL(clicked()), this, SLOT(SphereMeshExample()));
     connect(uiw->toreMesh, SIGNAL(clicked()), this, SLOT(ToreMeshExample()));
     connect(uiw->capsuleMesh, SIGNAL(clicked()), this, SLOT(CapsuleMeshExample()));
+    connect(uiw->complexMesh, SIGNAL(clicked()), this, SLOT(ComplexMeshExample()));
 
     connect(uiw->sphereImplicit, SIGNAL(clicked()), this, SLOT(SphereImplicitExample()));
     connect(uiw->resetcameraButton, SIGNAL(clicked()), this, SLOT(ResetCamera()));
@@ -102,12 +103,30 @@ void MainWindow::SphereMeshExample()
 
 void MainWindow::ToreMeshExample()
 {
+    Mesh toreMesh = Mesh(Tore(), 25);
 
+    meshColor = MeshColor(toreMesh);
+    UpdateGeometry();
 }
 
 void MainWindow::CapsuleMeshExample()
 {
+    Mesh mesh = Mesh(Capsule(1.0, 3.0), 100);
 
+    meshColor = MeshColor(mesh);
+    UpdateGeometry();
+}
+
+void MainWindow::ComplexMeshExample()
+{
+    Mesh coneMesh = Mesh(Cone(), 25);
+    Mesh cylinderMesh = Mesh(Cylinder(1.0, 5.0), 25);
+
+    coneMesh.Translate(Vector(0.0, 0.0, 5.0));
+    cylinderMesh.Merge(coneMesh);
+
+    meshColor = MeshColor(cylinderMesh);
+    UpdateGeometry();
 }
 
 void MainWindow::SphereImplicitExample()

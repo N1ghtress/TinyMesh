@@ -337,9 +337,9 @@ Mesh::Mesh(const Sphere& s,  int n)
         for (int j = 0; j < n; ++j)
         {
             double theta = 2.0 * M_PI * double(j) / double(n);
-            double x = sin(phi) * cos(theta);
-            double y = sin(phi) * sin(theta);
-            double z = cos(phi);
+            double x = sin(phi) * cos(theta) * s.Radius();
+            double y = sin(phi) * sin(theta) * s.Radius();
+            double z = cos(phi) * s.Radius();
             vertices.push_back(Vector(x, y, z));
         }
     }
@@ -353,7 +353,7 @@ Mesh::Mesh(const Sphere& s,  int n)
         AddTriangle(0, i1, i0, 0);
         i0 = i + n * (n-2) + 1;
         i1 = (i+1) % n + n * (n-2) + 1;
-        AddTriangle(n * (n-1), i0, i1, 0);
+        AddTriangle(n * (n-1) + 1, i0, i1, 0);
     }
 
     for (int j = 0; j < n - 2; ++j)
@@ -378,18 +378,105 @@ Mesh::Mesh(const Sphere& s,  int n)
     generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
-Mesh::Mesh(const Tore& tore, int n)
+Mesh::Mesh(const Tore& t, int n)
 {
     auto start = std::chrono::high_resolution_clock::now();
-    // TODO:
+
+    // Vertices
+    for (int i = 0; i < n; ++i)
+    {
+        double phi = 2 * M_PI * double(i) / double(n);
+
+        for (int j = 0; j < n; ++j)
+        {
+            double theta = 2.0 * M_PI * double(j) / double(n);
+            double x = sin(phi) * t.Radius() + sin(phi) * sin(theta) * t.radius();
+            double y = cos(phi) * t.Radius() + cos(phi) * sin(theta) * t.radius();
+            double z = cos(theta) * t.radius();
+            vertices.push_back(Vector(x, y, z));
+        }
+    }
+
+    // Topology
+    for (int i = 0; i < n; ++i)
+    {
+        int i0 = (i * n) % (n * n);
+        int i1 = ((i + 1) * n) % (n * n);
+        for (int j = 0; j < n; ++j)
+        {
+            int j0 = i0 + j;
+            int j1 = i1 + j;
+            int j2 = i1 + (j + 1) % n;
+            int j3 = i0 + (j + 1) % n;
+            AddTriangle(j0, j1, j2, 0);
+            AddTriangle(j0, j2, j3, 0);
+        }
+    }
+
+    // Normals
+    SmoothNormals();
+
     auto stop = std::chrono::high_resolution_clock::now();
     generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
-Mesh::Mesh(const Capsule& capsule, int n)
+Mesh::Mesh(const Capsule& c, int n)
 {
     auto start = std::chrono::high_resolution_clock::now();
-    // TODO:
+
+    if (n % 2 == 0) n -= 1;
+
+    // Vertices
+    vertices.push_back(c.Center() + c.Normal() * (c.Radius() + c.Height()));
+    for (int i = 0; i < n - 1; ++i)
+    {
+        double phi = M_PI * double(i+1) / double(n);
+
+        for (int j = 0; j < n; ++j)
+        {
+            double theta = 2.0 * M_PI * double(j) / double(n);
+            double x = sin(phi) * cos(theta) * c.Radius();
+            double y = sin(phi) * sin(theta) * c.Radius();
+            double z = cos(phi) * c.Radius();
+            if (i <= n / 2 - 1) {
+                vertices.push_back(Vector(x, y, z) + c.Normal() * c.Height());
+            } else {
+                vertices.push_back(Vector(x, y, z));
+            }
+        }
+    }
+
+    vertices.push_back(c.Center() - c.Normal() * c.Radius());
+
+    // Topology
+    for (int i = 0; i < n; ++i)
+    {
+        int i0 = i+1;
+        int i1 = (i+1) % n +1;
+        AddTriangle(0, i1, i0, 0);
+        i0 = i + n * (n-2) + 1;
+        i1 = (i+1) % n + n * (n-2) + 1;
+        AddTriangle(n * (n-1) + 1, i0, i1, 0);
+    }
+
+    for (int j = 0; j < n - 2; ++j)
+    {
+        int j0 = j * n + 1;
+        int j1 = (j + 1) * n + 1;
+        for (int i = 0; i < n; ++i)
+        {
+            int i0 = j0 + i;
+            int i1 = j0 + (i + 1) % n;
+            int i2 = j1 + (i + 1) % n;
+            int i3 = j1 + i;
+            AddTriangle(i0, i1, i2, 0);
+            AddTriangle(i0, i2, i3, 0);
+        }
+    }
+
+    // Normals
+    SmoothNormals();
+
     auto stop = std::chrono::high_resolution_clock::now();
     generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
@@ -416,7 +503,7 @@ void Mesh::Scale(double s)
     }
 }
 
-void Mesh::Translate(Vector& t)
+void Mesh::Translate(const Vector& t)
 {
     for(size_t i = 0; i < vertices.size(); ++i)
     {
@@ -476,42 +563,40 @@ void Mesh::RotateZ(double a)
     }
 }
 
-// TODO: Fix merge (not working)
-void Mesh::Merge(Mesh& m)
+void Mesh::Merge(const Mesh& m)
 {
-    int initial_size = 0;
-    // Vertices
-    initial_size = vertices.size();
-    vertices.resize(vertices.size() + m.vertices.size());
-    for (size_t i = 0; i < m.vertices.size(); ++i)
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // initializing offsets before adding verices and normals
+    int v_off = vertices.size();
+    int n_off = normals.size();
+
+    // adding m's vertices
+    for (int i = 0; i < m.Vertexes(); ++i)
     {
-        vertices[initial_size + i] = m.vertices[i];
+        vertices.push_back(m.Vertex(i));
     }
 
-    // Normals
-    initial_size = normals.size();
-    normals.resize(normals.size() + m.normals.size());
-    for (size_t i = 0; i < m.normals.size(); ++i)
+    // adding m's normals
+    for (int i = 0; i < m.Triangles()*3; ++i)
     {
-        normals[initial_size + i] = m.normals[i];
+        normals.push_back(m.Normal(i));
     }
 
-    // Topology
-    int v_shift = vertices.size();
-    initial_size = varray.size();
-    varray.resize(varray.size() + m.varray.size());
-    for (size_t i = 0; i < m.varray.size(); ++i)
+    for (int i = 0; i < m.Triangles(); ++i)
     {
-        varray[initial_size + i] = m.varray[i] + v_shift;
+        AddSmoothTriangle(
+            m.VertexIndex(i, 0) + v_off,
+            m.NormalIndex(i, 0) + n_off,
+            m.VertexIndex(i, 1) + v_off,
+            m.NormalIndex(i, 1) + n_off,
+            m.VertexIndex(i, 2) + v_off,
+            m.NormalIndex(i, 2) + n_off
+        );
     }
 
-    int n_shift = normals.size();
-    initial_size = narray.size();
-    narray.resize(narray.size() + m.narray.size());
-    for (size_t i = 0; i < m.narray.size(); ++i)
-    {
-        narray[initial_size + i] = m.narray[i] + n_shift;
-    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms += m.GenTime() + std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 void Mesh::SphereWarp(Sphere& sphere)

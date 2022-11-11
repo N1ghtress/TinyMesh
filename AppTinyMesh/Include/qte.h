@@ -36,6 +36,7 @@ public slots:
   void SphereMeshExample();
   void ToreMeshExample();
   void CapsuleMeshExample();
+  void ComplexMeshExample();
 
   void SphereImplicitExample();
   void ResetCamera();
