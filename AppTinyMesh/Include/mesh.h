@@ -1,8 +1,14 @@
 #pragma once
 
 #include "box.h"
+#include "capsule.h"
+#include "cone.h"
+#include "cylinder.h"
+#include "disc.h"
 #include "ray.h"
 #include "mathematics.h"
+#include "sphere.h"
+#include "tore.h"
 
 // Triangle
 class Triangle
@@ -115,11 +121,24 @@ public:
   Box GetBox() const;
 
   void Scale(double);
+  void Translate(Vector&);
+  void RotateX(double);
+  void RotateY(double);
+  void RotateZ(double);
+  void Merge(Mesh&);
+
+  void SphereWarp(Sphere&);
 
   void SmoothNormals();
 
   // Constructors from core classes
   explicit Mesh(const Box&);
+  explicit Mesh(const Disc&,  int);
+  explicit Mesh(const Cone&, int);
+  explicit Mesh(const Cylinder&, int);
+  explicit Mesh(const Sphere&, int);
+  explicit Mesh(const Tore&, int);
+  explicit Mesh(const Capsule&, int);
 
   void Load(const QString&);
   void SaveObj(const QString&, const QString&) const;

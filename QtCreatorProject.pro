@@ -12,29 +12,45 @@ VPATH += AppTinyMesh
 
 SOURCES += \
     AppTinyMesh/Source/box.cpp \
+    AppTinyMesh/Source/capsule.cpp \
+    AppTinyMesh/Source/cone.cpp \
+    AppTinyMesh/Source/cylinder.cpp \
+    AppTinyMesh/Source/disc.cpp \
     AppTinyMesh/Source/evector.cpp \
     AppTinyMesh/Source/implicits.cpp \
     AppTinyMesh/Source/main.cpp \
     AppTinyMesh/Source/camera.cpp \
+    AppTinyMesh/Source/matrix.cpp \
     AppTinyMesh/Source/mesh.cpp \
     AppTinyMesh/Source/meshcolor.cpp \
     AppTinyMesh/Source/mesh-widget.cpp \
     AppTinyMesh/Source/qtemainwindow.cpp \
     AppTinyMesh/Source/ray.cpp \
     AppTinyMesh/Source/shader-api.cpp \
+    AppTinyMesh/Source/sphere.cpp \
+    AppTinyMesh/Source/sphere_cluster.cpp \
+    AppTinyMesh/Source/tore.cpp \
     AppTinyMesh/Source/triangle.cpp \
 
 HEADERS += \
     AppTinyMesh/Include/box.h \
     AppTinyMesh/Include/camera.h \
+    AppTinyMesh/Include/capsule.h \
+    AppTinyMesh/Include/cluster.h \
     AppTinyMesh/Include/color.h \
+    AppTinyMesh/Include/cone.h \
+    AppTinyMesh/Include/cylinder.h \
+    AppTinyMesh/Include/disc.h \
     AppTinyMesh/Include/implicits.h \
     AppTinyMesh/Include/mathematics.h \
+    AppTinyMesh/Include/matrix.h \
     AppTinyMesh/Include/mesh.h \
     AppTinyMesh/Include/meshcolor.h \
     AppTinyMesh/Include/qte.h \
     AppTinyMesh/Include/realtime.h \
     AppTinyMesh/Include/shader-api.h \
+    AppTinyMesh/Include/sphere.h \
+    AppTinyMesh/Include/tore.h
 
 FORMS += \
     AppTinyMesh/UI/interface.ui

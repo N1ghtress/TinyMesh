@@ -29,6 +29,15 @@ void MainWindow::CreateActions()
 {
 	// Buttons
     connect(uiw->boxMesh, SIGNAL(clicked()), this, SLOT(BoxMeshExample()));
+
+    // Added
+    connect(uiw->discMesh, SIGNAL(clicked()), this, SLOT(DiscMeshExample()));
+    connect(uiw->coneMesh, SIGNAL(clicked()), this, SLOT(ConeMeshExample()));
+    connect(uiw->cylinderMesh, SIGNAL(clicked()), this, SLOT(CylinderMeshExample()));
+    connect(uiw->sphereMesh, SIGNAL(clicked()), this, SLOT(SphereMeshExample()));
+    connect(uiw->toreMesh, SIGNAL(clicked()), this, SLOT(ToreMeshExample()));
+    connect(uiw->capsuleMesh, SIGNAL(clicked()), this, SLOT(CapsuleMeshExample()));
+
     connect(uiw->sphereImplicit, SIGNAL(clicked()), this, SLOT(SphereImplicitExample()));
     connect(uiw->resetcameraButton, SIGNAL(clicked()), this, SLOT(ResetCamera()));
     connect(uiw->wireframe, SIGNAL(clicked()), this, SLOT(UpdateMaterial()));
@@ -50,15 +59,60 @@ void MainWindow::editingSceneRight(const Ray&)
 
 void MainWindow::BoxMeshExample()
 {
-	Mesh boxMesh = Mesh(Box(1.0));
+    Mesh boxMesh = Mesh(Box(1.0));
+    boxMesh.RotateX(Math::DegreeToRadian(20));
+    boxMesh.RotateY(Math::DegreeToRadian(20));
 
 	std::vector<Color> cols;
 	cols.resize(boxMesh.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
-		cols[i] = Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+        cols[i] = Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
 
-	meshColor = MeshColor(boxMesh, cols, boxMesh.VertexIndexes());
-	UpdateGeometry();
+    meshColor = MeshColor(boxMesh, cols, boxMesh.VertexIndexes());
+    UpdateGeometry();
+}
+
+// Added
+void MainWindow::DiscMeshExample()
+{
+    Mesh discMesh = Mesh(Disc(), 100);
+
+    meshColor = MeshColor(discMesh);
+    UpdateGeometry();
+}
+
+void MainWindow::ConeMeshExample()
+{
+    Mesh coneMesh = Mesh(Cone(), 100);
+
+    meshColor = MeshColor(coneMesh);
+    UpdateGeometry();
+}
+
+void MainWindow::CylinderMeshExample()
+{
+    Mesh cylinderMesh = Mesh(Cylinder(), 25);
+
+    meshColor = MeshColor(cylinderMesh);
+    UpdateGeometry();
+}
+
+void MainWindow::SphereMeshExample()
+{
+    Mesh sphereMesh = Mesh(Sphere(), 12);
+
+    meshColor = MeshColor(sphereMesh);
+    UpdateGeometry();
+}
+
+void MainWindow::ToreMeshExample()
+{
+
+}
+
+void MainWindow::CapsuleMeshExample()
+{
+
 }
 
 void MainWindow::SphereImplicitExample()

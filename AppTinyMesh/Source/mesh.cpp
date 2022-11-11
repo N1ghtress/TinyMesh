@@ -1,4 +1,6 @@
 #include "mesh.h"
+#include "cylinder.h"
+#include "matrix.h"
 
 /*!
 \class Mesh mesh.h
@@ -72,7 +74,7 @@ void Mesh::SmoothNormals()
   narray = varray;
 
   // Accumulate normals
-  for (int i = 0; i < varray.size(); i += 3)
+  for (size_t i = 0; i < varray.size(); i += 3)
   {
     Vector tn = Triangle(vertices[varray.at(i)], vertices[varray.at(i + 1)], vertices[varray.at(i + 2)]).AreaNormal();
     normals[narray[i + 0]] += tn;
@@ -81,7 +83,7 @@ void Mesh::SmoothNormals()
   }
 
   // Normalize 
-  for (int i = 0; i < normals.size(); i++)
+  for (size_t i = 0; i < normals.size(); i++)
   {
     Normalize(normals[i]);
   }
@@ -203,6 +205,151 @@ Mesh::Mesh(const Box& box)
   AddTriangle(6, 7, 2, 3);
 }
 
+Mesh::Mesh(const Disc& disc, int n)
+{
+    // Vertices
+    double angle = 2 * M_PI / n;
+    vertices.push_back(disc.Center());
+    for (int i = 0; i < n; ++i)
+    {
+        double a = angle * i;
+        vertices.push_back(Vector(cos(a), sin(a), 0));
+    }
+
+    // Normals
+    normals.push_back(disc.Normal());
+
+    // Topology
+    for (int i = 1; i < n; i++)
+    {
+        AddTriangle(i, i+1, 0, 0);
+    }
+    AddTriangle(0, 1, n, 0);
+}
+
+Mesh::Mesh(const Cone& cone, int n)
+{
+    // Vertices
+    double angle = 2 * M_PI / n;
+    vertices.push_back(cone.Center());
+    vertices.push_back(cone.Center() + cone.Normal() * cone.Height());
+    for (int i = 0; i < n; ++i)
+    {
+        double a = angle * i;
+        vertices.push_back(Vector(cos(a), sin(a), 0));
+    }
+
+    // TODO: Normals
+    normals.push_back(cone.Normal());
+
+    // Topology
+    for (int i = 2; i < n+1; ++i)
+    {
+        AddTriangle(0, i, i+1, 0);
+    }
+    AddTriangle(0, 2, n+1, 0);
+    for (int i = 2; i < n+1; ++i)
+    {
+        AddTriangle(1, i, i+1, 0);
+    }
+    AddTriangle(1, 2, n+1, 0);
+}
+
+Mesh::Mesh(const Cylinder& cylinder, int n)
+{
+    // Vertices
+    double angle = 2 * M_PI / n;
+    vertices.push_back(cylinder.Center()); // Index 0
+    for (int i = 0; i < n; ++i)
+    {
+        double a = angle * i;
+        vertices.push_back(Vector(cos(a), sin(a), 0));
+    }
+    vertices.push_back(cylinder.Center() + cylinder.Normal() * cylinder.Height()); // Index n+1
+    for (int i = 0; i < n; ++i)
+    {
+        double a = angle * i;
+        vertices.push_back(Vector(cos(a), sin(a), cylinder.Height()));
+    }
+
+    // TODO: Normals
+    normals.push_back(cylinder.Normal());
+
+    // Topology
+    for (int i = 1; i < n; ++i)
+    {
+        AddTriangle(0, i, i+1, 0);
+    }
+    AddTriangle(0, 1, n, 0);
+    for (int i = n+2; i < 2*n+1; ++i)
+    {
+        AddTriangle(n+1, i, i+1, 0);
+    }
+    AddTriangle(n+1, n+2, 2*n+1, 0);
+    for (int i = 1; i < n; ++i)
+    {
+        AddTriangle(i, i+1, n+i+1, 0);
+    }
+    AddTriangle(n, 1, 2*n+1, 0);
+    for (int i = 1; i < n; ++i)
+    {
+        AddTriangle(i+n+1, i+n+2, i+1, 0);
+    }
+    AddTriangle(2*n+1, n+2, 1, 0);
+}
+
+Mesh::Mesh(const Sphere& sphere,  int n)
+{
+    // Vertices
+    double angle = 2 * M_PI / n;
+    vertices.push_back(sphere.Center() - Vector(0, 0, 1) * sphere.Radius()); // Index 0
+    vertices.push_back(sphere.Center() + Vector(0, 0, 1) * sphere.Radius()); // Index 1
+    for (int i = 1; i < n-1; ++i)
+    {
+        double ai = (M_PI /n) * i;
+        for (int j = 0; j < n; ++j)
+        {
+            double aj = angle * j;
+            vertices.push_back(Vector(cos(aj)*sin(ai), sin(aj)*sin(ai), i*2/n));
+        }
+    }
+
+    // Normals
+    normals.push_back(Vector(0.0, 0.0, 1.0));
+
+    // Topology
+    for (int j = 2; j < n+1; ++j)
+    {
+        AddTriangle(0, j, j+1, 0);
+    }
+    AddTriangle(0, n+1, 2, 0);
+
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 2; j < n+1; ++j)
+        {
+            AddTriangle(i*n+j, (i+1)*n+j, (i+1)*n+j+1, 0);
+            AddTriangle(i*n+j, i*n+j+1, (i+1)*n+j+1, 0);
+        }
+    }
+
+    for (int j = 2; j < n+1; ++j)
+    {
+        AddTriangle(1, (n+1)*n+j, (n+1)*n+j+1, 0);
+    }
+    AddTriangle(1, (n+1)*n+n+1, (n+1)*n+2, 0);
+}
+
+Mesh::Mesh(const Tore& tore, int n)
+{
+    // TODO:
+}
+
+Mesh::Mesh(const Capsule& capsule, int n)
+{
+    // TODO:
+}
+
 /*!
 \brief Scale the mesh.
 \param s Scaling factor.
@@ -210,7 +357,7 @@ Mesh::Mesh(const Box& box)
 void Mesh::Scale(double s)
 {
     // Vertexes
-    for (int i = 0; i < vertices.size(); i++)
+    for (size_t i = 0; i < vertices.size(); i++)
     {
         vertices[i] *= s;
     }
@@ -218,14 +365,115 @@ void Mesh::Scale(double s)
     if (s < 0.0)
     {
         // Normals
-        for (int i = 0; i < normals.size(); i++)
+        for (size_t i = 0; i < normals.size(); i++)
         {
             normals[i] = -normals[i];
         }
     }
 }
 
+void Mesh::Translate(Vector& t)
+{
+    for(size_t i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i] += t;
+    }
+}
 
+void Mesh::RotateX(double a)
+{
+    Matrix m = Matrix::getRotationX(a);
+
+    // Vertices
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        std::cout << vertices[i] << " to " << m * vertices[i] << std::endl;
+        vertices[i] = m * vertices[i];
+    }
+
+    // Normals
+    for (size_t i = 0; i < normals.size(); ++i)
+    {
+        normals[i] = m * vertices[i];
+    }
+}
+
+void Mesh::RotateY(double a)
+{
+    Matrix m = Matrix::getRotationY(a);
+
+    // Vertices
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i] = m * vertices[i];
+    }
+
+    // Normals
+    for (size_t i = 0; i < normals.size(); ++i)
+    {
+        normals[i] = m * normals[i];
+    }
+}
+
+void Mesh::RotateZ(double a)
+{
+    Matrix m = Matrix::getRotationZ(a);
+
+    // Vertices
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i] = m * vertices[i];
+    }
+
+    // Normals
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        normals[i] = m * normals[i];
+    }
+}
+
+// TODO: Fix merge (not working)
+void Mesh::Merge(Mesh& m)
+{
+    int initial_size = 0;
+    // Vertices
+    initial_size = vertices.size();
+    vertices.resize(vertices.size() + m.vertices.size());
+    for (size_t i = 0; i < m.vertices.size(); ++i)
+    {
+        vertices[initial_size + i] = m.vertices[i];
+    }
+
+    // Normals
+    initial_size = normals.size();
+    normals.resize(normals.size() + m.normals.size());
+    for (size_t i = 0; i < m.normals.size(); ++i)
+    {
+        normals[initial_size + i] = m.normals[i];
+    }
+
+    // Topology
+    int v_shift = vertices.size();
+    initial_size = varray.size();
+    varray.resize(varray.size() + m.varray.size());
+    for (size_t i = 0; i < m.varray.size(); ++i)
+    {
+        varray[initial_size + i] = m.varray[i] + v_shift;
+    }
+
+    int n_shift = normals.size();
+    initial_size = narray.size();
+    narray.resize(narray.size() + m.narray.size());
+    for (size_t i = 0; i < m.narray.size(); ++i)
+    {
+        narray[initial_size + i] = m.narray[i] + n_shift;
+    }
+}
+
+void Mesh::SphereWarp(Sphere& sphere)
+{
+    // TODO:
+}
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
@@ -292,11 +540,11 @@ void Mesh::SaveObj(const QString& url, const QString& meshName) const
     return;
   QTextStream out(&data);
   out << "g " << meshName << Qt::endl;
-  for (int i = 0; i < vertices.size(); i++)
+  for (size_t i = 0; i < vertices.size(); i++)
     out << "v " << vertices.at(i)[0] << " " << vertices.at(i)[1] << " " << vertices.at(i)[2] << QString('\n');
-  for (int i = 0; i < normals.size(); i++)
+  for (size_t i = 0; i < normals.size(); i++)
     out << "vn " << normals.at(i)[0] << " " << normals.at(i)[1] << " " << normals.at(i)[2] << QString('\n');
-  for (int i = 0; i < varray.size(); i += 3)
+  for (size_t i = 0; i < varray.size(); i += 3)
   {
     out << "f " << varray.at(i) + 1 << "//" << narray.at(i) + 1 << " "
       << varray.at(i + 1) + 1 << "//" << narray.at(i + 1) + 1 << " "

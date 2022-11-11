@@ -6,7 +6,9 @@
 class Math
 {
 public:
+  static constexpr double epsilon = 1.0e-5;
   static constexpr double Clamp(double, double = 0.0, double = 1.0);
+  static constexpr double ToZero(double);
 
   // Minimum and maximum
   static constexpr double Min(double, double);
@@ -26,6 +28,11 @@ public:
 inline constexpr double Math::Clamp(double x, double a, double b)
 {
   return (x < a ? a : (x > b ? b : x));
+}
+
+inline constexpr double Math::ToZero(double a)
+{
+    return (a < 1.0e-5 && a > 0) ? 0 : (a > -1.0e-5 && a < 0) ? 0 : a;
 }
 
 /*!
