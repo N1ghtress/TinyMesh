@@ -63,19 +63,14 @@ void MainWindow::BoxMeshExample()
     boxMesh.RotateX(Math::DegreeToRadian(20));
     boxMesh.RotateY(Math::DegreeToRadian(20));
 
-	std::vector<Color> cols;
-	cols.resize(boxMesh.Vertexes());
-    for (size_t i = 0; i < cols.size(); i++)
-        cols[i] = Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-
-    meshColor = MeshColor(boxMesh, cols, boxMesh.VertexIndexes());
+    meshColor = MeshColor(boxMesh);
     UpdateGeometry();
 }
 
 // Added
 void MainWindow::DiscMeshExample()
 {
-    Mesh discMesh = Mesh(Disc(), 100);
+    Mesh discMesh = Mesh(Disc(), 25);
 
     meshColor = MeshColor(discMesh);
     UpdateGeometry();
@@ -83,7 +78,7 @@ void MainWindow::DiscMeshExample()
 
 void MainWindow::ConeMeshExample()
 {
-    Mesh coneMesh = Mesh(Cone(), 100);
+    Mesh coneMesh = Mesh(Cone(), 25);
 
     meshColor = MeshColor(coneMesh);
     UpdateGeometry();
@@ -99,7 +94,7 @@ void MainWindow::CylinderMeshExample()
 
 void MainWindow::SphereMeshExample()
 {
-    Mesh sphereMesh = Mesh(Sphere(), 12);
+    Mesh sphereMesh = Mesh(Sphere(), 25);
 
     meshColor = MeshColor(sphereMesh);
     UpdateGeometry();
@@ -138,6 +133,7 @@ void MainWindow::UpdateGeometry()
 
     uiw->lineEdit->setText(QString::number(meshColor.Vertexes()));
     uiw->lineEdit_2->setText(QString::number(meshColor.Triangles()));
+    uiw->lineEdit_gen_time->setText(QString::number(meshColor.GenTime()));
 
 	UpdateMaterial();
 }

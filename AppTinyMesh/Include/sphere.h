@@ -5,7 +5,7 @@
 class Sphere
 {
 protected:
-    Vector c;
+    Vector c, up;
     double r;
 public:
     Sphere();
@@ -15,5 +15,6 @@ public:
     ~Sphere() {};
 
     Vector Center() const;
+    Vector Normal() const;
     double Radius() const;
 };

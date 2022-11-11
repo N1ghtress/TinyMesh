@@ -3,7 +3,7 @@
 Disc::Disc()
 {
     c = Vector(0.0, 0.0, 0.0);
-    up = Vector(0.0, 1.0, 0.0);
+    up = Vector(0.0, 0.0, 1.0);
     r = 1.0;
 }
 

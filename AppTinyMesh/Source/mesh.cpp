@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "cylinder.h"
 #include "matrix.h"
+#include <chrono>
 
 /*!
 \class Mesh mesh.h
@@ -58,6 +59,11 @@ void Mesh::Reserve(int nv, int nn, int nvi, int nvn)
 */
 Mesh::~Mesh()
 {
+}
+
+long long int Mesh::GenTime() const
+{
+    return generation_time_ms;
 }
 
 /*!
@@ -166,6 +172,8 @@ The object has 8 vertices, 6 normals and 12 triangles.
 */
 Mesh::Mesh(const Box& box)
 {
+  auto start = std::chrono::high_resolution_clock::now();
+
   // Vertices
   vertices.resize(8);
 
@@ -203,10 +211,15 @@ Mesh::Mesh(const Box& box)
 
   AddTriangle(3, 2, 7, 3);
   AddTriangle(6, 7, 2, 3);
+
+  auto stop = std::chrono::high_resolution_clock::now();
+  generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Disc& disc, int n)
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Vertices
     double angle = 2 * M_PI / n;
     vertices.push_back(disc.Center());
@@ -216,19 +229,24 @@ Mesh::Mesh(const Disc& disc, int n)
         vertices.push_back(Vector(cos(a), sin(a), 0));
     }
 
-    // Normals
-    normals.push_back(disc.Normal());
-
     // Topology
     for (int i = 1; i < n; i++)
     {
         AddTriangle(i, i+1, 0, 0);
     }
     AddTriangle(0, 1, n, 0);
+
+    // Normals
+    SmoothNormals();
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Cone& cone, int n)
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Vertices
     double angle = 2 * M_PI / n;
     vertices.push_back(cone.Center());
@@ -238,9 +256,6 @@ Mesh::Mesh(const Cone& cone, int n)
         double a = angle * i;
         vertices.push_back(Vector(cos(a), sin(a), 0));
     }
-
-    // TODO: Normals
-    normals.push_back(cone.Normal());
 
     // Topology
     for (int i = 2; i < n+1; ++i)
@@ -253,10 +268,18 @@ Mesh::Mesh(const Cone& cone, int n)
         AddTriangle(1, i, i+1, 0);
     }
     AddTriangle(1, 2, n+1, 0);
+
+    // Normals
+    SmoothNormals();
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Cylinder& cylinder, int n)
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Vertices
     double angle = 2 * M_PI / n;
     vertices.push_back(cylinder.Center()); // Index 0
@@ -271,9 +294,6 @@ Mesh::Mesh(const Cylinder& cylinder, int n)
         double a = angle * i;
         vertices.push_back(Vector(cos(a), sin(a), cylinder.Height()));
     }
-
-    // TODO: Normals
-    normals.push_back(cylinder.Normal());
 
     // Topology
     for (int i = 1; i < n; ++i)
@@ -296,58 +316,82 @@ Mesh::Mesh(const Cylinder& cylinder, int n)
         AddTriangle(i+n+1, i+n+2, i+1, 0);
     }
     AddTriangle(2*n+1, n+2, 1, 0);
+
+    // Normals
+    SmoothNormals();
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
-Mesh::Mesh(const Sphere& sphere,  int n)
+Mesh::Mesh(const Sphere& s,  int n)
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Vertices
-    double angle = 2 * M_PI / n;
-    vertices.push_back(sphere.Center() - Vector(0, 0, 1) * sphere.Radius()); // Index 0
-    vertices.push_back(sphere.Center() + Vector(0, 0, 1) * sphere.Radius()); // Index 1
-    for (int i = 1; i < n-1; ++i)
+    vertices.push_back(s.Center() + s.Normal() * s.Radius());
+    for (int i = 0; i < n-1; ++i)
     {
-        double ai = (M_PI /n) * i;
+        double phi = M_PI * double(i+1) / double(n);
+
         for (int j = 0; j < n; ++j)
         {
-            double aj = angle * j;
-            vertices.push_back(Vector(cos(aj)*sin(ai), sin(aj)*sin(ai), i*2/n));
+            double theta = 2.0 * M_PI * double(j) / double(n);
+            double x = sin(phi) * cos(theta);
+            double y = sin(phi) * sin(theta);
+            double z = cos(phi);
+            vertices.push_back(Vector(x, y, z));
+        }
+    }
+    vertices.push_back(Vector(s.Center() - s.Normal() * s.Radius()));
+
+    // Topology
+    for (int i = 0; i < n; ++i)
+    {
+        int i0 = i+1;
+        int i1 = (i+1) % n +1;
+        AddTriangle(0, i1, i0, 0);
+        i0 = i + n * (n-2) + 1;
+        i1 = (i+1) % n + n * (n-2) + 1;
+        AddTriangle(n * (n-1), i0, i1, 0);
+    }
+
+    for (int j = 0; j < n - 2; ++j)
+    {
+        int j0 = j * n + 1;
+        int j1 = (j + 1) * n + 1;
+        for (int i = 0; i < n; ++i)
+        {
+            int i0 = j0 + i;
+            int i1 = j0 + (i + 1) % n;
+            int i2 = j1 + (i + 1) % n;
+            int i3 = j1 + i;
+            AddTriangle(i0, i1, i2, 0);
+            AddTriangle(i0, i2, i3, 0);
         }
     }
 
     // Normals
-    normals.push_back(Vector(0.0, 0.0, 1.0));
+    SmoothNormals();
 
-    // Topology
-    for (int j = 2; j < n+1; ++j)
-    {
-        AddTriangle(0, j, j+1, 0);
-    }
-    AddTriangle(0, n+1, 2, 0);
-
-    for (int i = 0; i < n; ++i)
-    {
-        for (int j = 2; j < n+1; ++j)
-        {
-            AddTriangle(i*n+j, (i+1)*n+j, (i+1)*n+j+1, 0);
-            AddTriangle(i*n+j, i*n+j+1, (i+1)*n+j+1, 0);
-        }
-    }
-
-    for (int j = 2; j < n+1; ++j)
-    {
-        AddTriangle(1, (n+1)*n+j, (n+1)*n+j+1, 0);
-    }
-    AddTriangle(1, (n+1)*n+n+1, (n+1)*n+2, 0);
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Tore& tore, int n)
 {
+    auto start = std::chrono::high_resolution_clock::now();
     // TODO:
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Capsule& capsule, int n)
 {
+    auto start = std::chrono::high_resolution_clock::now();
     // TODO:
+    auto stop = std::chrono::high_resolution_clock::now();
+    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 /*!

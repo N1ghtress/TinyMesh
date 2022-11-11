@@ -28,7 +28,6 @@ SOURCES += \
     AppTinyMesh/Source/ray.cpp \
     AppTinyMesh/Source/shader-api.cpp \
     AppTinyMesh/Source/sphere.cpp \
-    AppTinyMesh/Source/sphere_cluster.cpp \
     AppTinyMesh/Source/tore.cpp \
     AppTinyMesh/Source/triangle.cpp \
 
@@ -36,7 +35,6 @@ HEADERS += \
     AppTinyMesh/Include/box.h \
     AppTinyMesh/Include/camera.h \
     AppTinyMesh/Include/capsule.h \
-    AppTinyMesh/Include/cluster.h \
     AppTinyMesh/Include/color.h \
     AppTinyMesh/Include/cone.h \
     AppTinyMesh/Include/cylinder.h \
