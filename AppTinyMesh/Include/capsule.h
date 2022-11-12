@@ -10,7 +10,7 @@ protected:
 public:
     Capsule();
     explicit Capsule(double, double);
-    explicit Capsule(Vector&, double, double);
+    explicit Capsule(const Vector&, double, double);
 
     ~Capsule() {}
 

@@ -16,7 +16,7 @@ Capsule::Capsule(double p_r, double p_h)
     h = p_h;
 }
 
-Capsule::Capsule(Vector& p_c, double p_r, double p_h)
+Capsule::Capsule(const Vector& p_c, double p_r, double p_h)
 {
     c = p_c;
     up = Vector(0.0, 0.0, 1.0);

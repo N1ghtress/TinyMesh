@@ -15,7 +15,7 @@ Sphere::Sphere(double p_r)
     r = p_r;
 }
 
-Sphere::Sphere(Vector& p_c, double p_r)
+Sphere::Sphere(const Vector& p_c, double p_r)
 {
     c = p_c;
     up = Vector(0.0, 0.0, 1.0);

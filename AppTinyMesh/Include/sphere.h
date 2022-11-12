@@ -10,7 +10,7 @@ protected:
 public:
     Sphere();
     explicit Sphere(double);
-    explicit Sphere(Vector&, double);
+    explicit Sphere(const Vector&, double);
 
     ~Sphere() {}
 

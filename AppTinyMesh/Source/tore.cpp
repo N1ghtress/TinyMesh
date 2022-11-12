@@ -16,7 +16,7 @@ Tore::Tore(double p_r, double p_R)
     R = p_R;
 }
 
-Tore::Tore(Vector& p_c, double p_r, double p_R)
+Tore::Tore(const Vector& p_c, double p_r, double p_R)
 {
     c = p_c;
     up = Vector(0.0, 0.0, 1.0);

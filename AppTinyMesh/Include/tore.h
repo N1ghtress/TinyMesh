@@ -10,7 +10,7 @@ protected:
 public:
     Tore();
     explicit Tore(double, double);
-    explicit Tore(Vector&, double, double);
+    explicit Tore(const Vector&, double, double);
 
     ~Tore() {}
 

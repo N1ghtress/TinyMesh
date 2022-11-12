@@ -131,7 +131,7 @@ public:
   void RotateZ(double);
   void Merge(const Mesh&);
 
-  void SphereWarp(const Sphere&);
+  void SphereWarp(const Sphere&, double);
 
   void SmoothNormals();
 

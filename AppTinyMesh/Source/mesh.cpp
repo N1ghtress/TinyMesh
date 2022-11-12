@@ -598,22 +598,21 @@ void Mesh::Merge(const Mesh& m)
     generation_time_ms += m.GenTime() + std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
-void Mesh::SphereWarp(const Sphere& s)
+void Mesh::SphereWarp(const Sphere& s, double force)
 {
     for (int i = 0; i < Vertexes(); ++i)
     {
         if (s.Contains(vertices[i]))
         {
-            double dist_x = pow(vertices[i][0], 2) - pow(s.Center()[0], 2);
-            double dist_y = pow(vertices[i][1], 2) - pow(s.Center()[1], 2);
-            double dist_z = pow(vertices[i][2], 2) - pow(s.Center()[2], 2);
-
-            double dist = sqrt(dist_x + dist_y + dist_z);
-
-            std::cout << dist << std::endl;
-            vertices[i] += s.Center() * exp(-dist);
+            Vector dir(s.Center() - vertices[i]);
+            double dist = Norm(dir);
+            Normalize(dir);
+            double distanceMul = (- 1 * sqrt(dist) + sqrt(s.Radius()));
+            vertices[i] += dir * force * distanceMul;
         }
     }
+
+    SmoothNormals();
 }
 
 #include <QtCore/QFile>
