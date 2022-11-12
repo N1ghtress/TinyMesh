@@ -74,9 +74,9 @@ Matrix Matrix::getRotationZ(double a) {
     Matrix m(3);
 
     m.Entries().assign({
-        1.0, 0.0, 0.0,
-        0.0, Math::ToZero(std::cos(a)), Math::ToZero(-std::sin(a)),
-        0.0, Math::ToZero(std::sin(a)), Math::ToZero(std::cos(a))
+        Math::ToZero(cos(a)), Math::ToZero(-sin(a)), 0,
+        Math::ToZero(sin(a)), Math::ToZero(std::cos(a)), 0,
+        0, 0, 1
     });
 
     return m;

@@ -462,8 +462,3 @@ inline Vector Vector::Bilinear(const Vector& a00, const Vector& a10, const Vecto
 {
   return (1 - u) * (1 - v) * a00 + (1 - u) * (v)*a01 + (u) * (1 - v) * a10 + (u) * (v)*a11;
 }
-
-inline double distance(const Vector& u, const Vector& v)
-{
-    return abs(u.X * u.X - v.X * v.X + u.Y * u.Y - v.Y * v.Y + u.Z * u.Z - v.Z * v.Z);
-}
