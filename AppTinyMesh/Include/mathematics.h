@@ -167,6 +167,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream&, const Vector&);
 
+  friend double distance(const Vector&, const Vector&);
 public:
   static const Vector Null; //!< Null vector.
   static const Vector X; //!< Vector(1,0,0).
@@ -460,4 +461,9 @@ The values are given in trigonometric order.
 inline Vector Vector::Bilinear(const Vector& a00, const Vector& a10, const Vector& a11, const Vector& a01, double u, double v)
 {
   return (1 - u) * (1 - v) * a00 + (1 - u) * (v)*a01 + (u) * (1 - v) * a10 + (u) * (v)*a11;
+}
+
+inline double distance(const Vector& u, const Vector& v)
+{
+    return abs(u.X * u.X - v.X * v.X + u.Y * u.Y - v.Y * v.Y + u.Z * u.Z - v.Z * v.Z);
 }

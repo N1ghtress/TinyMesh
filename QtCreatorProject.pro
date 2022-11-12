@@ -17,6 +17,7 @@ SOURCES += \
     AppTinyMesh/Source/cylinder.cpp \
     AppTinyMesh/Source/disc.cpp \
     AppTinyMesh/Source/evector.cpp \
+    AppTinyMesh/Source/height_field.cpp \
     AppTinyMesh/Source/implicits.cpp \
     AppTinyMesh/Source/main.cpp \
     AppTinyMesh/Source/camera.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
     AppTinyMesh/Include/cone.h \
     AppTinyMesh/Include/cylinder.h \
     AppTinyMesh/Include/disc.h \
+    AppTinyMesh/Include/height_field.h \
     AppTinyMesh/Include/implicits.h \
     AppTinyMesh/Include/mathematics.h \
     AppTinyMesh/Include/matrix.h \

@@ -1,4 +1,5 @@
 #include "sphere.h"
+#include <iostream>
 
 Sphere::Sphere()
 {
@@ -34,4 +35,9 @@ Vector Sphere::Normal() const
 double Sphere::Radius() const
 {
     return r;
+}
+
+bool Sphere::Contains(const Vector& p) const
+{
+    return (pow(p[0] - c[0], 2.0) + pow(p[1] - c[1], 2.0) + pow(p[2] - c[2], 2.0)) < pow(r, 2.0);
 }

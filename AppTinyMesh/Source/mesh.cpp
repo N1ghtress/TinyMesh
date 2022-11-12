@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "cylinder.h"
 #include "matrix.h"
+#include "mathematics.h"
 #include <chrono>
 
 /*!
@@ -226,7 +227,7 @@ Mesh::Mesh(const Disc& disc, int n)
     for (int i = 0; i < n; ++i)
     {
         double a = angle * i;
-        vertices.push_back(Vector(cos(a), sin(a), 0));
+        vertices.push_back(Vector(disc.Center()[0] + cos(a), disc.Center()[1] + sin(a), disc.Center()[2]));
     }
 
     // Topology
@@ -254,7 +255,7 @@ Mesh::Mesh(const Cone& cone, int n)
     for (int i = 0; i < n; ++i)
     {
         double a = angle * i;
-        vertices.push_back(Vector(cos(a), sin(a), 0));
+        vertices.push_back(Vector(cone.Center()[0] + cos(a), cone.Center()[1] + sin(a), cone.Center()[2]));
     }
 
     // Topology
@@ -276,23 +277,23 @@ Mesh::Mesh(const Cone& cone, int n)
     generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
-Mesh::Mesh(const Cylinder& cylinder, int n)
+Mesh::Mesh(const Cylinder& c, int n)
 {
     auto start = std::chrono::high_resolution_clock::now();
 
     // Vertices
     double angle = 2 * M_PI / n;
-    vertices.push_back(cylinder.Center()); // Index 0
+    vertices.push_back(c.Center()); // Index 0
     for (int i = 0; i < n; ++i)
     {
         double a = angle * i;
-        vertices.push_back(Vector(cos(a), sin(a), 0));
+        vertices.push_back(Vector(c.Center()[0] + cos(a), c.Center()[1] + sin(a), c.Center()[2]));
     }
-    vertices.push_back(cylinder.Center() + cylinder.Normal() * cylinder.Height()); // Index n+1
+    vertices.push_back(c.Center() + c.Normal() * c.Height()); // Index n+1
     for (int i = 0; i < n; ++i)
     {
         double a = angle * i;
-        vertices.push_back(Vector(cos(a), sin(a), cylinder.Height()));
+        vertices.push_back(Vector(c.Center()[0] + cos(a), c.Center()[1] + sin(a), c.Center()[2] + c.Height()));
     }
 
     // Topology
@@ -315,7 +316,7 @@ Mesh::Mesh(const Cylinder& cylinder, int n)
     {
         AddTriangle(i+n+1, i+n+2, i+1, 0);
     }
-    AddTriangle(2*n+1, n+2, 1, 0);
+    AddTriangle(n+2, 1, 2*n+1, 0);
 
     // Normals
     SmoothNormals();
@@ -340,7 +341,7 @@ Mesh::Mesh(const Sphere& s,  int n)
             double x = sin(phi) * cos(theta) * s.Radius();
             double y = sin(phi) * sin(theta) * s.Radius();
             double z = cos(phi) * s.Radius();
-            vertices.push_back(Vector(x, y, z));
+            vertices.push_back(Vector(x, y, z) + s.Center());
         }
     }
     vertices.push_back(Vector(s.Center() - s.Normal() * s.Radius()));
@@ -393,7 +394,7 @@ Mesh::Mesh(const Tore& t, int n)
             double x = sin(phi) * t.Radius() + sin(phi) * sin(theta) * t.radius();
             double y = cos(phi) * t.Radius() + cos(phi) * sin(theta) * t.radius();
             double z = cos(theta) * t.radius();
-            vertices.push_back(Vector(x, y, z));
+            vertices.push_back(Vector(x, y, z) + t.Center());
         }
     }
 
@@ -439,13 +440,12 @@ Mesh::Mesh(const Capsule& c, int n)
             double y = sin(phi) * sin(theta) * c.Radius();
             double z = cos(phi) * c.Radius();
             if (i <= n / 2 - 1) {
-                vertices.push_back(Vector(x, y, z) + c.Normal() * c.Height());
+                vertices.push_back(Vector(x, y, z) + c.Center() + c.Normal() * c.Height());
             } else {
-                vertices.push_back(Vector(x, y, z));
+                vertices.push_back(Vector(x, y, z) + c.Center());
             }
         }
     }
-
     vertices.push_back(c.Center() - c.Normal() * c.Radius());
 
     // Topology
@@ -518,7 +518,6 @@ void Mesh::RotateX(double a)
     // Vertices
     for (size_t i = 0; i < vertices.size(); ++i)
     {
-        std::cout << vertices[i] << " to " << m * vertices[i] << std::endl;
         vertices[i] = m * vertices[i];
     }
 
@@ -599,9 +598,22 @@ void Mesh::Merge(const Mesh& m)
     generation_time_ms += m.GenTime() + std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
-void Mesh::SphereWarp(Sphere& sphere)
+void Mesh::SphereWarp(const Sphere& s)
 {
-    // TODO:
+    for (int i = 0; i < Vertexes(); ++i)
+    {
+        if (s.Contains(vertices[i]))
+        {
+            double dist_x = pow(vertices[i][0], 2) - pow(s.Center()[0], 2);
+            double dist_y = pow(vertices[i][1], 2) - pow(s.Center()[1], 2);
+            double dist_z = pow(vertices[i][2], 2) - pow(s.Center()[2], 2);
+
+            double dist = sqrt(dist_x + dist_y + dist_z);
+
+            std::cout << dist << std::endl;
+            vertices[i] += s.Center() * exp(-dist);
+        }
+    }
 }
 
 #include <QtCore/QFile>

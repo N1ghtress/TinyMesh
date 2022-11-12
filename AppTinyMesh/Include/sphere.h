@@ -12,9 +12,11 @@ public:
     explicit Sphere(double);
     explicit Sphere(Vector&, double);
 
-    ~Sphere() {};
+    ~Sphere() {}
 
     Vector Center() const;
     Vector Normal() const;
     double Radius() const;
+
+    bool Contains(const Vector&) const;
 };

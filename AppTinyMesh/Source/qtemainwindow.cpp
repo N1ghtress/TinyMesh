@@ -60,58 +60,58 @@ void MainWindow::editingSceneRight(const Ray&)
 
 void MainWindow::BoxMeshExample()
 {
-    Mesh boxMesh = Mesh(Box(1.0));
-    boxMesh.RotateX(Math::DegreeToRadian(20));
-    boxMesh.RotateY(Math::DegreeToRadian(20));
+    Mesh mesh = Mesh(Box(1.0));
 
-    meshColor = MeshColor(boxMesh);
+    mesh.RotateX(M_PI / 4);
+
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
 // Added
 void MainWindow::DiscMeshExample()
 {
-    Mesh discMesh = Mesh(Disc(), 25);
+    Mesh mesh = Mesh(Disc(2.0), 25);
 
-    meshColor = MeshColor(discMesh);
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
 void MainWindow::ConeMeshExample()
 {
-    Mesh coneMesh = Mesh(Cone(), 25);
+    Mesh mesh = Mesh(Cone(1.0, 3.0), 25);
 
-    meshColor = MeshColor(coneMesh);
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
 void MainWindow::CylinderMeshExample()
 {
-    Mesh cylinderMesh = Mesh(Cylinder(), 25);
+    Mesh mesh = Mesh(Cylinder(), 100);
 
-    meshColor = MeshColor(cylinderMesh);
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
 void MainWindow::SphereMeshExample()
 {
-    Mesh sphereMesh = Mesh(Sphere(), 25);
+    Mesh mesh = Mesh(Sphere(), 100);
 
-    meshColor = MeshColor(sphereMesh);
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
 void MainWindow::ToreMeshExample()
 {
-    Mesh toreMesh = Mesh(Tore(), 25);
+    Mesh mesh = Mesh(Tore(), 100);
 
-    meshColor = MeshColor(toreMesh);
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
 void MainWindow::CapsuleMeshExample()
 {
-    Mesh mesh = Mesh(Capsule(1.0, 3.0), 100);
+    Mesh mesh = Mesh(Capsule(), 100);
 
     meshColor = MeshColor(mesh);
     UpdateGeometry();
@@ -119,13 +119,13 @@ void MainWindow::CapsuleMeshExample()
 
 void MainWindow::ComplexMeshExample()
 {
-    Mesh coneMesh = Mesh(Cone(), 25);
-    Mesh cylinderMesh = Mesh(Cylinder(1.0, 5.0), 25);
+    Mesh mesh = Mesh(Box(1.0));
+    Vector v(0.0, 0.0, 1.1);
+    Mesh s_mesh = Mesh(Sphere(v, 1.0), 100);
 
-    coneMesh.Translate(Vector(0.0, 0.0, 5.0));
-    cylinderMesh.Merge(coneMesh);
+    mesh.Merge(s_mesh);
 
-    meshColor = MeshColor(cylinderMesh);
+    meshColor = MeshColor(mesh);
     UpdateGeometry();
 }
 
