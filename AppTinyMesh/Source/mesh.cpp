@@ -561,9 +561,10 @@ void Mesh::SphereWarp(const Sphere& s, double force)
         {
             Vector dir(s.Center() - vertices[i]);
             double dist = Norm(dir);
-            dir *= s.Normal() * abs(force);
+            dir += s.Center() * abs(force);
             Normalize(dir);
-            double distanceMul = (- 1 * sqrt(dist) + sqrt(s.Radius()));
+            // double distanceMul = (- 1 * sqrt(dist) + sqrt(s.Radius()));
+            double distanceMul = - 3 * pow(dist/s.Radius(), 2) + 2 * pow(dist/s.Radius(), 3) + 1;
             vertices[i] += dir * force * distanceMul;
         }
     }
