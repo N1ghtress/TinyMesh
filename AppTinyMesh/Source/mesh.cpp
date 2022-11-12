@@ -29,7 +29,7 @@ Indices must have a size multiple of three (three for triangle vertices and thre
 */
 Mesh::Mesh(const std::vector<Vector>& vertices, const std::vector<int>& indices) :vertices(vertices), varray(indices)
 {
-  normals.resize(vertices.size(), Vector::Z);
+    normals.resize(vertices.size(), Vector::Z);
 }
 
 /*!
@@ -49,10 +49,10 @@ Mesh::Mesh(const std::vector<Vector>& vertices, const std::vector<Vector>& norma
 */
 void Mesh::Reserve(int nv, int nn, int nvi, int nvn)
 {
-  vertices.reserve(nv);
-  normals.reserve(nn);
-  varray.reserve(nvi);
-  narray.reserve(nvn);
+    vertices.reserve(nv);
+    normals.reserve(nn);
+    varray.reserve(nvi);
+    narray.reserve(nvn);
 }
 
 /*!
@@ -60,11 +60,6 @@ void Mesh::Reserve(int nv, int nn, int nvi, int nvn)
 */
 Mesh::~Mesh()
 {
-}
-
-long long int Mesh::GenTime() const
-{
-    return generation_time_ms;
 }
 
 /*!
@@ -75,25 +70,25 @@ This function weights the normals of the faces by their corresponding area.
 */
 void Mesh::SmoothNormals()
 {
-  // Initialize 
-  normals.resize(vertices.size(), Vector::Null);
+    // Initialize
+    normals.resize(vertices.size(), Vector::Null);
 
-  narray = varray;
+    narray = varray;
 
-  // Accumulate normals
-  for (size_t i = 0; i < varray.size(); i += 3)
-  {
-    Vector tn = Triangle(vertices[varray.at(i)], vertices[varray.at(i + 1)], vertices[varray.at(i + 2)]).AreaNormal();
-    normals[narray[i + 0]] += tn;
-    normals[narray[i + 1]] += tn;
-    normals[narray[i + 2]] += tn;
-  }
+    // Accumulate normals
+    for (size_t i = 0; i < varray.size(); i += 3)
+    {
+        Vector tn = Triangle(vertices[varray.at(i)], vertices[varray.at(i + 1)], vertices[varray.at(i + 2)]).AreaNormal();
+        normals[narray[i + 0]] += tn;
+        normals[narray[i + 1]] += tn;
+        normals[narray[i + 2]] += tn;
+    }
 
-  // Normalize 
-  for (size_t i = 0; i < normals.size(); i++)
-  {
-    Normalize(normals[i]);
-  }
+    // Normalize
+    for (size_t i = 0; i < normals.size(); i++)
+    {
+        Normalize(normals[i]);
+    }
 }
 
 /*!
@@ -103,12 +98,12 @@ void Mesh::SmoothNormals()
 */
 void Mesh::AddSmoothTriangle(int a, int na, int b, int nb, int c, int nc)
 {
-  varray.push_back(a);
-  narray.push_back(na);
-  varray.push_back(b);
-  narray.push_back(nb);
-  varray.push_back(c);
-  narray.push_back(nc);
+    varray.push_back(a);
+    narray.push_back(na);
+    varray.push_back(b);
+    narray.push_back(nb);
+    varray.push_back(c);
+    narray.push_back(nc);
 }
 
 /*!
@@ -118,12 +113,12 @@ void Mesh::AddSmoothTriangle(int a, int na, int b, int nb, int c, int nc)
 */
 void Mesh::AddTriangle(int a, int b, int c, int n)
 {
-  varray.push_back(a);
-  narray.push_back(n);
-  varray.push_back(b);
-  narray.push_back(n);
-  varray.push_back(c);
-  narray.push_back(n);
+    varray.push_back(a);
+    narray.push_back(n);
+    varray.push_back(b);
+    narray.push_back(n);
+    varray.push_back(c);
+    narray.push_back(n);
 }
 
 /*!
@@ -136,11 +131,11 @@ Creates two smooth triangles abc and acd.
 */
 void Mesh::AddSmoothQuadrangle(int a, int na, int b, int nb, int c, int nc, int d, int nd)
 {
-  // First triangle
-  AddSmoothTriangle(a, na, b, nb, c, nc);
+    // First triangle
+    AddSmoothTriangle(a, na, b, nb, c, nc);
 
-  // Second triangle
-  AddSmoothTriangle(a, na, c, nc, d, nd);
+    // Second triangle
+    AddSmoothTriangle(a, na, c, nc, d, nd);
 }
 
 /*!
@@ -150,7 +145,7 @@ void Mesh::AddSmoothQuadrangle(int a, int na, int b, int nb, int c, int nc, int 
 */
 void Mesh::AddQuadrangle(int a, int b, int c, int d)
 {
-  AddSmoothQuadrangle(a, a, b, b, c, c, d, d);
+    AddSmoothQuadrangle(a, a, b, b, c, c, d, d);
 }
 
 /*!
@@ -158,11 +153,11 @@ void Mesh::AddQuadrangle(int a, int b, int c, int d)
 */
 Box Mesh::GetBox() const
 {
-  if (vertices.size() == 0)
-  {
-    return Box::Null;
-  }
-  return Box(vertices);
+    if (vertices.size() == 0)
+    {
+        return Box::Null;
+    }
+    return Box(vertices);
 }
 
 /*!
@@ -173,54 +168,47 @@ The object has 8 vertices, 6 normals and 12 triangles.
 */
 Mesh::Mesh(const Box& box)
 {
-  auto start = std::chrono::high_resolution_clock::now();
+    // Vertices
+    vertices.resize(8);
 
-  // Vertices
-  vertices.resize(8);
+    for (int i = 0; i < 8; i++)
+    {
+        vertices[i] = box.Vertex(i);
+    }
 
-  for (int i = 0; i < 8; i++)
-  {
-    vertices[i] = box.Vertex(i);
-  }
+    // Normals
+    normals.push_back(Vector(-1, 0, 0));
+    normals.push_back(Vector(1, 0, 0));
+    normals.push_back(Vector(0, -1, 0));
+    normals.push_back(Vector(0, 1, 0));
+    normals.push_back(Vector(0, 0, -1));
+    normals.push_back(Vector(0, 0, 1));
 
-  // Normals
-  normals.push_back(Vector(-1, 0, 0));
-  normals.push_back(Vector(1, 0, 0));
-  normals.push_back(Vector(0, -1, 0));
-  normals.push_back(Vector(0, 1, 0));
-  normals.push_back(Vector(0, 0, -1));
-  normals.push_back(Vector(0, 0, 1));
+    // Reserve space for the triangle array
+    varray.reserve(12 * 3);
+    narray.reserve(12 * 3);
 
-  // Reserve space for the triangle array
-  varray.reserve(12 * 3);
-  narray.reserve(12 * 3);
+    AddTriangle(0, 2, 1, 4);
+    AddTriangle(1, 2, 3, 4);
 
-  AddTriangle(0, 2, 1, 4);
-  AddTriangle(1, 2, 3, 4);
+    AddTriangle(4, 5, 6, 5);
+    AddTriangle(5, 7, 6, 5);
 
-  AddTriangle(4, 5, 6, 5);
-  AddTriangle(5, 7, 6, 5);
+    AddTriangle(0, 4, 2, 0);
+    AddTriangle(4, 6, 2, 0);
 
-  AddTriangle(0, 4, 2, 0);
-  AddTriangle(4, 6, 2, 0);
+    AddTriangle(1, 3, 5, 1);
+    AddTriangle(3, 7, 5, 1);
 
-  AddTriangle(1, 3, 5, 1);
-  AddTriangle(3, 7, 5, 1);
+    AddTriangle(0, 1, 5, 2);
+    AddTriangle(0, 5, 4, 2);
 
-  AddTriangle(0, 1, 5, 2);
-  AddTriangle(0, 5, 4, 2);
-
-  AddTriangle(3, 2, 7, 3);
-  AddTriangle(6, 7, 2, 3);
-
-  auto stop = std::chrono::high_resolution_clock::now();
-  generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    AddTriangle(3, 2, 7, 3);
+    AddTriangle(6, 7, 2, 3);
 }
 
 Mesh::Mesh(const Disc& disc, int n)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     // Vertices
     double angle = 2 * M_PI / n;
     vertices.push_back(disc.Center());
@@ -239,15 +227,10 @@ Mesh::Mesh(const Disc& disc, int n)
 
     // Normals
     SmoothNormals();
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Cone& cone, int n)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     // Vertices
     double angle = 2 * M_PI / n;
     vertices.push_back(cone.Center());
@@ -272,15 +255,10 @@ Mesh::Mesh(const Cone& cone, int n)
 
     // Normals
     SmoothNormals();
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Cylinder& c, int n)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     // Vertices
     double angle = 2 * M_PI / n;
     vertices.push_back(c.Center()); // Index 0
@@ -320,15 +298,10 @@ Mesh::Mesh(const Cylinder& c, int n)
 
     // Normals
     SmoothNormals();
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Sphere& s,  int n)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     // Vertices
     vertices.push_back(s.Center() + s.Normal() * s.Radius());
     for (int i = 0; i < n-1; ++i)
@@ -374,15 +347,10 @@ Mesh::Mesh(const Sphere& s,  int n)
 
     // Normals
     SmoothNormals();
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Tore& t, int n)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     // Vertices
     for (int i = 0; i < n; ++i)
     {
@@ -416,15 +384,10 @@ Mesh::Mesh(const Tore& t, int n)
 
     // Normals
     SmoothNormals();
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 Mesh::Mesh(const Capsule& c, int n)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     if (n % 2 == 0) n -= 1;
 
     // Vertices
@@ -476,9 +439,6 @@ Mesh::Mesh(const Capsule& c, int n)
 
     // Normals
     SmoothNormals();
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 /*!
@@ -524,7 +484,7 @@ void Mesh::RotateX(double a)
     // Normals
     for (size_t i = 0; i < normals.size(); ++i)
     {
-        normals[i] = m * vertices[i];
+        normals[i] = m * normals[i];
     }
 }
 
@@ -564,8 +524,6 @@ void Mesh::RotateZ(double a)
 
 void Mesh::Merge(const Mesh& m)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     // initializing offsets before adding verices and normals
     int v_off = vertices.size();
     int n_off = normals.size();
@@ -593,9 +551,6 @@ void Mesh::Merge(const Mesh& m)
             m.NormalIndex(i, 2) + n_off
         );
     }
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    generation_time_ms += m.GenTime() + std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 }
 
 void Mesh::SphereWarp(const Sphere& s, double force)

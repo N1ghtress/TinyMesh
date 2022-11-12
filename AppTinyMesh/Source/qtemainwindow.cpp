@@ -60,72 +60,155 @@ void MainWindow::editingSceneRight(const Ray&)
 
 void MainWindow::BoxMeshExample()
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     Mesh mesh = Mesh(Box(1.0));
 
     mesh.RotateX(M_PI / 4);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 // Added
 void MainWindow::DiscMeshExample()
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     Mesh mesh = Mesh(Disc(2.0), 25);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 void MainWindow::ConeMeshExample()
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     Mesh mesh = Mesh(Cone(1.0, 3.0), 25);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 void MainWindow::CylinderMeshExample()
 {
-    Mesh mesh = Mesh(Cylinder(), 100);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Mesh mesh = Mesh(Cylinder(), 1000);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 void MainWindow::SphereMeshExample()
 {
-    Mesh mesh = Mesh(Sphere(), 100);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Mesh mesh = Mesh(Sphere(), 1000);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 void MainWindow::ToreMeshExample()
 {
-    Mesh mesh = Mesh(Tore(), 100);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Mesh mesh = Mesh(Tore(), 1000);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 void MainWindow::CapsuleMeshExample()
 {
-    Mesh mesh = Mesh(Capsule(), 100);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Mesh mesh = Mesh(Capsule(), 1000);
 
     meshColor = MeshColor(mesh);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
 void MainWindow::ComplexMeshExample()
 {
-    Mesh mesh = Mesh(Box(1.0));
-    Vector v(0.0, 0.0, 1.1);
-    Mesh s_mesh = Mesh(Sphere(v, 1.0), 100);
+    // Time measure
+    auto start = std::chrono::high_resolution_clock::now();
 
-    mesh.Merge(s_mesh);
+    // Mesh creation and transformation
+    Mesh mesh;
+    Mesh dice0 = Mesh(Sphere(Vector(0, 0, 0), 1), 100);
+
+    double r = 1.4;
+    double f = -2;
+
+    dice0.SphereWarp(Sphere(Vector(2, 0, 0), r), f);
+    dice0.SphereWarp(Sphere(Vector(-2, 0, 0), r), f);
+    dice0.SphereWarp(Sphere(Vector(0, 2, 0), r), f);
+    dice0.SphereWarp(Sphere(Vector(0, -2, 0), r), f);
+    dice0.SphereWarp(Sphere(Vector(0, 0, 2), r), f);
+    dice0.SphereWarp(Sphere(Vector(0, 0, -2), r), f);
+
+    Mesh dice1 = Mesh(dice0);
+    Mesh dice2 = Mesh(dice0);
+
+    dice0.Translate(Vector(0, -0.7, 0));
+
+    dice1.RotateZ(M_PI / 4);
+    dice1.Translate(Vector(1, 1, 0));
+
+    dice2.RotateX(M_PI / 4);
+    dice2.Translate(Vector(-1, 1, 0));
+
+
+    // Mesh assembly
+    mesh.Merge(dice0);
+    mesh.Merge(dice1);
+    mesh.Merge(dice2);
 
     meshColor = MeshColor(mesh);
+
+    // Time measure
+    auto stop = std::chrono::high_resolution_clock::now();
+    double gen_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    uiw->lineEdit_gen_time->setText(QString::number(gen_time));
+
     UpdateGeometry();
 }
 
@@ -152,7 +235,6 @@ void MainWindow::UpdateGeometry()
 
     uiw->lineEdit->setText(QString::number(meshColor.Vertexes()));
     uiw->lineEdit_2->setText(QString::number(meshColor.Triangles()));
-    uiw->lineEdit_gen_time->setText(QString::number(meshColor.GenTime()));
 
 	UpdateMaterial();
 }

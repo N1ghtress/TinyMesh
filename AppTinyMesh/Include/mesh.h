@@ -95,7 +95,6 @@ protected:
   std::vector<Vector> normals;  //!< Normals.
   std::vector<int> varray;     //!< Vertex indexes.
   std::vector<int> narray;     //!< Normal indexes.
-  long long int generation_time_ms;
 public:
   explicit Mesh();
   explicit Mesh(const std::vector<Vector>&, const std::vector<int>&);
@@ -112,7 +111,6 @@ public:
 
   int Triangles() const;
   int Vertexes() const;
-  long long int GenTime() const;
 
   std::vector<int> VertexIndexes() const;
   std::vector<int> NormalIndexes() const;
